@@ -1,8 +1,6 @@
-// src/middlewares/auth.middleware.ts
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 
-// Local interface to extend Request
 interface AuthenticatedRequest extends Request {
   user?: jwt.JwtPayload;
 }

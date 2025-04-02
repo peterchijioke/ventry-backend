@@ -4,7 +4,7 @@ import errorMiddleware from "./middlewares/error.middleware";
 import dotenv from "dotenv";
 import { Client } from "pg";
 import cors from "cors";
-import { initializeDatabase } from "./config/db"; // No need to import databaseConfig
+import { initializeDatabase } from "./config/db"; 
 
 dotenv.config();
 const app = express();

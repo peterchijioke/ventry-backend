@@ -1,9 +1,6 @@
 import { DataSource, DataSourceOptions } from "typeorm";
 import { AccessCode } from "./entities/accessCode.entity";
 
-console.log('==============__dirname======================');
-console.log(__dirname);
-console.log('============__dirname========================');
 
 const databaseConfig: DataSourceOptions = {
   type: "postgres",
@@ -25,8 +22,7 @@ export const initializeDatabase = async () => {
     await AppDataSource.initialize();
     console.log("Database connected successfully");
 
-    // Seed sample access codes if none exist
-    const accessCodeRepo = AppDataSource.getRepository(AccessCode); // Use AppDataSource here
+    const accessCodeRepo = AppDataSource.getRepository(AccessCode); 
     const existingCodes = await accessCodeRepo.count();
     if (existingCodes === 0) {
       await accessCodeRepo.save([
