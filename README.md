@@ -72,3 +72,38 @@ POST /api/v1/auth/login
   "password": "password123"
 }
 
+GET /api/validate-access-code?code=<code>
+
+Query Parameter: code=ABC-123
+```
+### Project Structure
+```bash
+
+ventry-backend/
+├── src/
+│   ├── config/
+│   │   └── db.ts
+│   ├── controllers/
+│   │   ├── AuthController.ts
+│   │   └── AccessCodeController.ts
+│   ├── dtos/
+│   │   ├── SignupDto.ts
+│   │   └── LoginDto.ts
+│   ├── entities/
+│   │   ├── User.ts
+│   │   └── AccessCode.ts
+│   ├── middlewares/
+│   │   ├── auth.middleware.ts
+│   │   └── error.middleware.ts
+│   ├── routes/
+│   │   ├── auth.routes.ts
+│   │   └── accessCode.routes.ts
+│   ├── services/
+│   │   ├── auth.service.ts
+│   │   └── accessCode.service.ts
+│   └── server.ts
+├── .env
+├── package.json
+└── README.md
+```
+
