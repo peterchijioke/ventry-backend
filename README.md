@@ -10,7 +10,7 @@ This is the back-end for the Ventry project, a sign-in and sign-up system with a
   - `POST /api/v1/auth/signup`: Register a new user with an access code.
   - `POST /api/v1/auth/login`: Authenticate a user and return a JWT token.
   - `GET /api/v1/auth/me`: Get the authenticated user's details (protected route).
-  - `GET /api/validate-access-code?code=<code>`: Validate an access code.
+  - `GET /api/v1/auth/validate-access-code?code=<code>`: Validate an access code.
 
 ## Prerequisites
 - **Node.js** (v16 or higher)
@@ -21,5 +21,5 @@ This is the back-end for the Ventry project, a sign-in and sign-up system with a
 
 ### 1. Clone the Repository
 ```bash
-git clone <your-backend-repo-url>
+git clone git@github.com:peterchijioke/ventry-backend.git
 cd ventry-backend
