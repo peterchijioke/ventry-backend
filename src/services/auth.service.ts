@@ -1,81 +1,99 @@
-// services/AuthService.ts
-import argon2 from 'argon2';
-import jwt from 'jsonwebtoken';
-import { LoginDto } from '../dtos/LoginDto';
-import { SignupDto } from '../dtos/SignupDto';
-import { User } from '../config/entities/user.entity';
+import { SignupDto } from "../dtos/SignupDto";
+import { LoginDto } from "../dtos/LoginDto";
+import { AppDataSource } from "../config/db";
+import argon2 from "argon2";
+import jwt from "jsonwebtoken";
+import { AccessCode } from "../config/entities/accessCode.entity";
+import { User } from "../config/entities/user.entity";
 
 export class AuthService {
-  static async signup({ email, password, accessCode }: SignupDto) {
-    // Invite-only logic
-    if (process.env.INVITE_ONLY === 'true') {
-      const validAccessCode = process.env.ACCESS_CODE || 'SECRET123';
-      if (accessCode !== validAccessCode) {
-        const error: any = new Error('Invalid access code');
-        error.status = 403;
-        error.code = 'INVALID_ACCESS_CODE';
-        throw error;
-      }
-    }
+  private static userRepository = AppDataSource.getRepository(User);
+  private static accessCodeRepository = AppDataSource.getRepository(AccessCode);
 
-    const existingUser = await User.findOne({ where: { email } });
-    if (existingUser) {
-      const error: any = new Error('Email already in use');
+
+  static async signup(signupData: SignupDto) {
+    const { email, password, accessCode } = signupData;
+    const accessCodeEntity = await this.accessCodeRepository.findOne({
+      where: { code: accessCode, isUsed: false },
+    });
+
+    if (!accessCodeEntity) {
+      const error: any = new Error("Invalid or used access code");
       error.status = 400;
-      error.code = 'EMAIL_EXISTS';
+      error.code = "INVALID_ACCESS_CODE";
       throw error;
     }
 
-    const hashedPassword = await argon2.hash(password);
-    const user = User.create({
+    const existingUser = await this.userRepository.findOne({ where: { email } });
+    if (existingUser) {
+      const error: any = new Error("User already exists");
+      error.status = 400;
+      error.code = "USER_EXISTS";
+      throw error;
+    }
+
+   const hashedPassword = await argon2.hash(password);
+
+    const user = this.userRepository.create({
       email,
       password: hashedPassword,
+      accessCode,
     });
-    await user.save();
+    await this.userRepository.save(user);
 
-    const secret = process.env.JWT_SECRET;
-    if (!secret) throw new Error('JWT_SECRET not configured');
-    const token = jwt.sign({ id: user.id, email: user.email }, secret, {
-      expiresIn: '1h',
-    });
+    accessCodeEntity.isUsed = true;
+    await this.accessCodeRepository.save(accessCodeEntity);
+
+    const token = jwt.sign(
+      { id: user.id, email: user.email },
+      process.env.JWT_SECRET as string,
+      { expiresIn: "1h" }
+    );
 
     return { user: { id: user.id, email: user.email }, token };
   }
 
-  static async login({ email, password }: LoginDto) {
-    const user = await User.findOne({ where: { email } });
+  static async login(loginData: LoginDto) {
+    const { email, password } = loginData;
+
+    const user = await this.userRepository.findOne({ where: { email } });
     if (!user) {
-      const error: any = new Error('Invalid credentials');
+      const error: any = new Error("Invalid credentials");
       error.status = 401;
-      error.code = 'INVALID_CREDENTIALS';
+      error.code = "INVALID_CREDENTIALS";
       throw error;
     }
 
-    const isValid = await argon2.verify(user.password, password);
-    if (!isValid) {
-      const error: any = new Error('Invalid credentials');
+    const isPasswordValid = await argon2.verify(user.password, password);
+    if (!isPasswordValid) {
+      const error: any = new Error("Invalid credentials");
       error.status = 401;
-      error.code = 'INVALID_CREDENTIALS';
+      error.code = "INVALID_CREDENTIALS";
       throw error;
     }
 
-    const secret = process.env.JWT_SECRET;
-    if (!secret) throw new Error('JWT_SECRET not configured');
-    const token = jwt.sign({ id: user.id, email: user.email }, secret, {
-      expiresIn: '1h',
-    });
-
+    const token = jwt.sign(
+      { id: user.id, email: user.email },
+      process.env.JWT_SECRET as string,
+      { expiresIn: "1h" }
+    );
     return { user: { id: user.id, email: user.email }, token };
   }
 
-  static async getMe(userId: string) {
-    const user = await User.findOne({ where: { id: userId } });
+  static async getMe(userId: number) {
+    const user = await this.userRepository.findOne({ where: { id: userId } });
     if (!user) {
-      const error: any = new Error('User not found');
+      const error: any = new Error("User not found");
       error.status = 404;
-      error.code = 'USER_NOT_FOUND';
+      error.code = "USER_NOT_FOUND";
       throw error;
     }
     return user;
+  }
+  static async validateAccessCode(code: string): Promise<boolean> {
+    const accessCode = await this.accessCodeRepository.findOne({
+      where: { code, isUsed: false },
+    });
+    return !!accessCode;
   }
 }

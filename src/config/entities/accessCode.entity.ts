@@ -1,18 +1,15 @@
 import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn } from "typeorm";
 
-@Entity("users")
-export class User {
+@Entity("access_codes")
+export class AccessCode {
   @PrimaryGeneratedColumn()
   id!: number;
 
   @Column({ unique: true })
-  email!: string;
+  code!: string;
 
-  @Column()
-  password!: string;
-
-  @Column({ nullable: true })
-  accessCode!: string;
+  @Column({ default: false })
+  isUsed!: boolean;
 
   @CreateDateColumn()
   createdAt!: Date;

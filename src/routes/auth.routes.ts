@@ -10,5 +10,6 @@ const router = Router();
 router.post('/signup', validateDto(SignupDto), AuthController.signup);
 router.post('/login', validateDto(LoginDto), AuthController.login);
 router.get('/me', authenticateJWT, AuthController.getMe);
+router.get("/validate-access-code", AuthController.validateAccessCode);
 
 export default router;
