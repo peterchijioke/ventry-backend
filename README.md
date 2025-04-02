@@ -24,6 +24,8 @@ This is the back-end for the Ventry project, a sign-in and sign-up system with a
 git clone git@github.com:peterchijioke/ventry-backend.git
 cd ventry-backend
 
+```
+
 ### 2. Install Dependencies
 ```bash
 npm install
@@ -41,6 +43,7 @@ PORT=9000
 JWT_SECRET=hgfcvghjhgghvbjhvgcfxchjg987656yuyfghscd23
 INVITE_ONLY=true  
 ACCESS_CODE=SECRET1515
+```
 
 ### 4. Set Up PostgreSQL
 ```bash
@@ -50,6 +53,7 @@ The database (ventry) will be created automatically when you run the project (se
 ### 5. Run the Project
 ```bash
 npm start
+```
 
 ### API Endpoints
 ```bash
